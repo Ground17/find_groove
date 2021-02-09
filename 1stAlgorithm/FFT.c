@@ -79,8 +79,8 @@ int main()
     const int M = 2;
     const int N = 4; // length (= 2 to the M)
 
-    double x['N'] = { 1, 2, 3, 4 }; // real part
-    double y['N'] = { 0, 0, 0, 0 }; // imaginary part
+    double x['N'] = { 1, 2, 3, 4, 5, 6, 7, 8 }; // real part
+    double y['N'] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // imaginary part
 
     // FFT
 
