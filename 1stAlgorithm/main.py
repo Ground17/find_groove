@@ -1,6 +1,8 @@
 import spectogram
 import os
 
+#Uncompleted!!!
+
 def text2tuple(file):
 
     test_list = []
