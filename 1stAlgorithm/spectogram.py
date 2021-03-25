@@ -1,8 +1,8 @@
 import numpy as np
 import wave
 import math
-import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 global fs
 fs = 44100/4
@@ -21,7 +21,7 @@ def get_2D_peaks(array,array_index,avg,time):
 
     for i in range(len(array)):
         if array[i] >= avg:
-            Nonzero_index.append((array_index[i]*fs/1024,time[i]))
+            Nonzero_index.append((array_index[i],time[i]))
     return Nonzero_index
 
 def Low_fre(frequency):
@@ -128,8 +128,8 @@ def spectogram(file):
         max_index.append(frequency.index(max_frequency))
 
     Low_avg = sum(low_frequency)/len(low_frequency)
-    #time = np.arange(0,length - 1024, 1024)
-    time = np.arange(0, length - 1024, 1024) / fs / 2
+    time = np.arange(0,length - 1024, 1024)
+    #time = np.arange(0, length - 1024, 1024) / fs / 2
 
     peaks = get_2D_peaks(max_value, max_index, Low_avg*1.2, time)
     #fre_time = final_frequency*fs/1024
@@ -152,8 +152,8 @@ music_list = os.listdir(path)
 fan_value = 15
 for k in music_list:
     peaks = spectogram('./musics/'+k)
+    f = open('./fingerprints/'+k.replace('.wav','')+'.txt', 'w')
 
-    data = []
     for i in range(len(peaks)):
         for j in range(1, fan_value):
             if (i+j) < len(peaks):
@@ -164,11 +164,13 @@ for k in music_list:
                 t2 = peaks[i + j][1]
                 t_delta = t2 - t1
 
-                if t_delta <= 200:
-                    data.append((freq1,freq2,t_delta))
+                if t_delta <= 1024*20:
+                    f.write(str(freq1)+','+str(freq2)+','+str(t_delta)+','+str(t1)+'\n')
 
 
-    df = pd.DataFrame(data)
+    f.close()
+    '''df = pd.DataFrame(data)
 
-    df.to_csv('C:/Users/moonm/PycharmProjects/pythonProject/fingerprints/'+k)
+    df.to_csv('C:/Users/moonm/PycharmProjects/pythonProject/fingerprints/'+k.replace('.wav','.csv'), index = False, header = False)
+    '''
 

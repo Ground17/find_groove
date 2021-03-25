@@ -1,5 +1,5 @@
 필요한 모듈
-numpy, wave, math, pandas, os
+numpy, wave, math, os
 
 알고리즘 순서
 
@@ -18,7 +18,6 @@ numpy, wave, math, pandas, os
 구현되면 좋을 것:
 1. 저장 데이터를 16진법 hash로 암호화(데이터 크기를 획기적으로 줄임)
 2. wav 파일 말고 mp3 파일을 불러오기(현 모듈은 mp3를 불러올 수 없어서 음원 용량이 큼)
-3. 현재 튜플 리스트인 데이터를 저장해야하므로 우선적으로 csv로 저장하지만, hash라면 다른 방법으로 저장 가능함
 
 참고문헌
 http://coding-geek.com/how-shazam-works/ (알고리즘 1~6)
