@@ -1,10 +1,61 @@
 import spectogram
 import os
 
-#Uncompleted!!!
+def matching(offset_list):
+    '''
+    Match music
+
+    :param offset_list: get offsets tuple(the music name, offset )
+    :return:            find the matched music
+    '''
+    max = 0
+    index = 0
+    for i in range(len(offset_list)):
+        if max < offset_list[i][1]:
+            max = offset_list[i][1]
+            index = i
+
+    return offset_list[index][0]
+
+def mode(arr):
+    '''
+
+    :param arr:     any list or array
+    :return:        find the most appearing value in list
+    '''
+
+    max_count = 0
+    counter = set(arr)
+    for c in counter:
+        if max_count < arr.count(c):
+            max_count = arr.count(c)
+
+    return max_count
+
+def compare(test_list, rec_finger):
+
+    '''
+    Calculation of the difference of offsets
+
+    :param test_list:       The original music data
+    :param rec_finger:      The recorded music data
+    :return:                The list of the offsets between the origin and recorded
+    '''
+    result = []
+    for tuple, offset in test_list:
+        for rec_tuple, rec_offset in rec_finger:
+            if rec_tuple == tuple:
+                result.append(offset - rec_offset)
+    return mode(result)
+
 
 def text2tuple(file):
+    '''
+    Transform the file.txt to tuple
 
+    :param file:        A file.txt
+    :return:            List[[(tuple),offset]]
+    '''
     test_list = []
 
     while True:
@@ -16,6 +67,12 @@ def text2tuple(file):
     return test_list
 
 def rec_fingerprints(rec_peaks):
+    '''
+    Get a fingerprint of recorded music
+
+    :param rec_peaks:       A recorded music in spectogram
+    :return:                List[[(tuple),offset]]
+    '''
     fan_value = 15
     data = []
 
@@ -38,22 +95,21 @@ path_rec = './records'
 data = os.listdir(path_data)
 rec = os.listdir(path_rec)
 
-file = open(path_data+data[0],'r')
-test_list = text2tuple(file)
-
-rec_peaks = spectogram.spectogram('C:/Users/moonm/PycharmProjects/pythonProject/records/'+rec[0])
+rec_peaks = spectogram.spectogram('C:/Users/moonm/PycharmProjects/pythonProject/records/' + rec[0])
 rec_finger = rec_fingerprints(rec_peaks)
 
-count = 0
-result = []
-for rec_tuple, rec_offset in rec_finger:
-    for tuple, offset in test_list:
-        if rec_tuple not in tuple:
-           count = 0
-        else :
-            count += 1
+offset_list=[]
+for file_name in data:
+    file = open(path_data+file_name,'r')
+    test_list = text2tuple(file)
 
-print(rec_finger)
+
+    offset = compare(test_list, rec_finger)
+    offset_list.append((file_name.replace('.txt','.wav'),offset))
+
+print(matching(offset_list))
+
+
 
 
 
