@@ -124,6 +124,17 @@ def spectogram(file):
     global fs
 
     audio_normalised = audioread(file)
+    summary = 0
+
+    for item in audio_normalised:
+        summary += abs(item)
+    average = summary / len(audio_normalised)
+    if average < 0.1:
+        for i in range(len(audio_normalised)):
+            audio_normalised[i] *= 0.1 / average
+
+
+    print("average:", summary / len(audio_normalised))
 
     length = len(audio_normalised)
     window = np.hamming(1024)                                   #탭 수 1024인 해밍윈도우 생성
@@ -142,7 +153,7 @@ def spectogram(file):
         max_index.append(frequency.index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
 
     Low_avg = sum(low_frequency)/len(low_frequency)             #모든 시간영역에서 가장 큰 저주파수 크기의 평균값
-    time = np.arange(0,length - 1024, 1024)                     #시간 array
+    time = np.arange(0, length - 1024, 1024)                     #시간 array
     #time = np.arange(0, length - 1024, 1024) / fs / 2
 
     peaks = get_2D_peaks(max_value, max_index, Low_avg*1.2, time)   #평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
@@ -167,30 +178,32 @@ music_list = [item for item in music_list if os.path.isdir(os.path.join(path, it
 '''
     fingerprint를 얻는 과정입니다.
 '''
-fan_value = 15                                                      #특정 인덱스 기준 몇번째까지 범위를 가질것인가
-for k in music_list:
-    genre_path = path + '/' + k
-    for l in os.listdir(genre_path):
-        peaks = spectogram(genre_path + "/" + l)
-        f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
 
-        for i in range(len(peaks)):
-            for j in range(1, fan_value):
-                if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
+if __name__ == "__main__":
+    fan_value = 15                                            #특정 인덱스 기준 몇번째까지 범위를 가질것인가
+    for k in music_list:
+        genre_path = path + '/' + k
+        for l in os.listdir(genre_path):
+            peaks = spectogram(genre_path + "/" + l)
+            f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
+            for i in range(len(peaks)):
+                for j in range(1, fan_value):
+                    if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
 
-                    freq1 = peaks[i][0]                                 #주파수1 인덱스
-                    freq2 = peaks[i + j][0]                             #주파수2 인덱스
-                    t1 = peaks[i][1]                                    #시간1 인덱스
-                    t2 = peaks[i + j][1]                                #시간2 인덱스
-                    t_delta = t2 - t1
+                        freq1 = peaks[i][0]                                 #주파수1 인덱스
+                        freq2 = peaks[i + j][0]                             #주파수2 인덱스
+                        t1 = peaks[i][1]                                    #시간1 인덱스
+                        t2 = peaks[i + j][1]                                #시간2 인덱스
+                        t_delta = t2 - t1
 
-                    if t_delta <= 1024*20:                              #특정 시간 이내라면
-                        f.write(str(freq1)+','+str(freq2)+','+str(t_delta)+','+str(t1)+'\n') #주파수1, 주파수2, 시간차, 시간1 저장
+                        if t_delta <= 1024*20:                              #특정 시간 이내라면
+                            f.write(str(freq1)+','+str(freq2)+','+str(t_delta)+','+str(t1)+'\n') #주파수1, 주파수2, 시간차, 시간1 저장
 
 
-        f.close()
-        '''df = pd.DataFrame(data)
+            f.close()
+            print(l)
+            '''df = pd.DataFrame(data)
 
-        df.to_csv('C:/Users/moonm/PycharmProjects/pythonProject/fingerprints/'+k.replace('.wav','.csv'), index = False, header = False)
-        '''
+            df.to_csv('C:/Users/moonm/PycharmProjects/pythonProject/fingerprints/'+k.replace('.wav','.csv'), index = False, header = False)
+            '''
 
