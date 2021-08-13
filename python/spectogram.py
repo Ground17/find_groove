@@ -3,6 +3,7 @@ import wave
 import math
 import os
 import matplotlib.pyplot as plt
+from scipy.signal import butter, lfilter
 
 global fs
 fs = 44100/4
@@ -45,22 +46,31 @@ def Low_fre(frequency):
     #return (f_10+f_20+f_40+f_80+f_160+f_511)/6
     return max([f_10,f_20,f_40,f_80,f_160,f_511])
 
-def downsampling(file):
+def downsampling(files, sample=44100):
     '''
 
     :param file:    audio file
+    :sample: sample rate (무조건 44100의 약수여야 함)
     :return:        downsampled file, sampling rates = 4:1
 
     44100Hz는 데이터가 너무 커서 0.25배로 다운샘플링
     '''
-    N = len(file)
+    N = len(files)
+    skip = sample // 11025
     down_file=[]
+    
+    # lowpass_filter 5kHz cutoff (aliasing 제거)
+    nyq = 0.5 * sample
+    normal_cutoff = 5000 / nyq
+    order = 5
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    files = lfilter(b, a, files)
 
-    for i in range(0, N, 4):
-        if N - i < 4:
-            temp = file[i:]
+    for i in range(0, N, skip):
+        if N - i < skip:
+            temp = files[i:]
         else:
-            temp = file[i:i + 4]
+            temp = files[i:i + skip]
         down_file.append(sum(temp)/len(temp)) #시간을 평균내서 한 뭉텅이로 만듦
 
     return down_file
@@ -104,7 +114,7 @@ def audioread(file):
 
     max_int16 = 2 ** 15
     audio_normalised = audio_as_np_float32 / max_int16
-    return downsampling(audio_normalised)
+    return downsampling(audio_normalised, ifile.getframerate())
 
 def spectogram(file):
     '''
@@ -124,33 +134,50 @@ def spectogram(file):
     global fs
 
     audio_normalised = audioread(file)
-    summary = 0
 
-    for item in audio_normalised:
-        summary += abs(item)
-    average = summary / len(audio_normalised)
-    if average < 0.1:
-        for i in range(len(audio_normalised)):
-            audio_normalised[i] *= 0.1 / average
+    # summary = 0
 
+    # for item in audio_normalised:
+    #     summary += abs(item)
+    # average = summary / len(audio_normalised)
+    # if average < 0.1:
+    #     for i in range(len(audio_normalised)):
+    #         audio_normalised[i] *= 0.1 / average
 
-    print("average:", summary / len(audio_normalised))
+    # print("average:", summary / len(audio_normalised))
 
     length = len(audio_normalised)
     window = np.hamming(1024)                                   #탭 수 1024인 해밍윈도우 생성
+    window_512 = np.hamming(512)
+
+    frequencies = []
 
     low_frequency = []
     max_value = []
     max_index = []
-    for i in range(0,length-1024,1024):
+
+    summary = [0 for _ in range(512)]
+    for i in range(0, length - 1024, 1024):
         audio_cut = []
         for j in range(1024):
             audio_cut.append(window[j]*audio_normalised[i+j])   #해밍윈도우로 자르기   
-        frequency = (FFT(audio_cut))                            #잘린 부분 FFT 변환
-        low_frequency.append(Low_fre(frequency))                #잘린 구간 저주파수 영역에서 가장 큰 주파수 크기 등록
-        max_frequency = max(frequency)                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
+        frequency = FFT(audio_cut)                              #잘린 부분 FFT 변환
+        for j in range(512):
+            summary[j] += frequency[j]
+
+        frequencies.append(frequency)
+
+    for j in range(512):
+        summary[j] /= len(frequencies)
+
+    for i in range(len(frequencies)):
+        # for j in range(512):
+        #     frequencies[i][j] -= summary[j]
+        # frequencies[i][0] = frequencies[i][1] = 0
+        low_frequency.append(Low_fre(frequencies[i]))                #잘린 구간 저주파수 영역에서 가장 큰 주파수 크기 등록
+        max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
         max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
-        max_index.append(frequency.index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
+        max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
 
     Low_avg = sum(low_frequency)/len(low_frequency)             #모든 시간영역에서 가장 큰 저주파수 크기의 평균값
     time = np.arange(0, length - 1024, 1024)                     #시간 array
@@ -189,7 +216,6 @@ if __name__ == "__main__":
             for i in range(len(peaks)):
                 for j in range(1, fan_value):
                     if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
-
                         freq1 = peaks[i][0]                                 #주파수1 인덱스
                         freq2 = peaks[i + j][0]                             #주파수2 인덱스
                         t1 = peaks[i][1]                                    #시간1 인덱스

@@ -55,24 +55,24 @@ def compare(test_list, rec_finger):
     '''
     result = {}
 
-    minimal = 10
-    length = len(rec_finger)
-    check = False
+    # minimal = 10
+    # length = len(rec_finger)
+    # check = False
 
     for tuple_value, offset in test_list:   #음원과 녹음된 음원의 데이터를 일일이 비교
-        if check:
-            length -= 1
-            if length < 0:
-                check = False
-                length = len(rec_finger)
+        # if check:
+        #     length -= 1
+        #     if length < 0:
+        #         check = False
+        #         length = len(rec_finger)
         for i, value in enumerate(rec_finger):   
             rec_tuple, rec_offset = value
-            if i >= minimal and not check:
-                break
+            # if i >= minimal and not check:
+            #     break
 
             if rec_tuple == tuple_value:    
-                check = True              #데이터가 일치할 때마다
-                length = len(rec_finger)
+                # check = True              #데이터가 일치할 때마다
+                # length = len(rec_finger)
                 if offset - rec_offset in result: #두 오프셋의 차이를 기록함
                     result[offset - rec_offset] += 1
                 else:
@@ -156,8 +156,10 @@ if __name__ == "__main__":
     test_lists = load_tuple()
     path_rec = './records/'
     rec = os.listdir(path_rec)
+    rec_name = rec[5]
+    print("target:", rec_name)
 
-    rec_peaks = spectogram.spectogram(path_rec + rec[4])     #녹음/일부 음원 스펙트로그램 적용
+    rec_peaks = spectogram.spectogram(path_rec + rec_name)     #녹음/일부 음원 스펙트로그램 적용
     rec_finger = rec_fingerprints(rec_peaks)    #녹음된 음원 지문을 기록
     index = -1
     max_value = 0
