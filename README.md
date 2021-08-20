@@ -9,6 +9,8 @@ data/ : 음악, 핑거프린트 저장 (데이터 경로: http://marsyas.info/do
 
 녹음 파일은 2초로 고정, 나머지 시간은 처리 시간
 
+ML: https://colab.research.google.com/drive/1B45kY1MgfvyjKYS4CsjQSN4aH7I4XKyb?usp=sharing
+
 구현할 것
 1. 탐색 속도 높이는 알고리즘
 2. 녹음파일 정확도 향상

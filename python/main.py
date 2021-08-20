@@ -156,7 +156,7 @@ if __name__ == "__main__":
     test_lists = load_tuple()
     path_rec = './records/'
     rec = os.listdir(path_rec)
-    rec_name = rec[5]
+    rec_name = rec[2]
     print("target:", rec_name)
 
     rec_peaks = spectogram.spectogram(path_rec + rec_name)     #녹음/일부 음원 스펙트로그램 적용

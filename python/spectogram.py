@@ -157,6 +157,7 @@ def spectogram(file):
     max_index = []
 
     summary = [0 for _ in range(512)]
+    min_value = [10 for _ in range(512)]
     for i in range(0, length - 1024, 1024):
         audio_cut = []
         for j in range(1024):
@@ -164,13 +165,13 @@ def spectogram(file):
         frequency = FFT(audio_cut)                              #잘린 부분 FFT 변환
         for j in range(512):
             summary[j] += frequency[j]
+            min_value[j] = min(min_value[j], frequency[j])
 
         frequencies.append(frequency)
 
-    for j in range(512):
-        summary[j] /= len(frequencies)
-
     for i in range(len(frequencies)):
+        for j in range(512):
+            frequencies[i][j] -= min_value[j]
         # for j in range(512):
         #     frequencies[i][j] -= summary[j]
         # frequencies[i][0] = frequencies[i][1] = 0
@@ -178,6 +179,8 @@ def spectogram(file):
         max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
         max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
         max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
+    plt.plot(frequencies[0])
+    plt.show()
 
     Low_avg = sum(low_frequency)/len(low_frequency)             #모든 시간영역에서 가장 큰 저주파수 크기의 평균값
     time = np.arange(0, length - 1024, 1024)                     #시간 array

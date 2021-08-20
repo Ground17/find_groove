@@ -14,5 +14,5 @@ def mp3towav():
         # 사용 전 ffmpeg 다운로드, 환경변수 설정                                                         
         audSeg = AudioSegment.from_mp3(src)
         audSeg.export(dst, format="wav")
-
-mp3towav()
+if __name__ == "__main__":
+    mp3towav()

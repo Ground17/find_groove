@@ -1,3 +1,6 @@
 {
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "python.terminal.activateEnvironment": true,
+    "python.pythonPath": "./python/venv/Scripts/python.exe",
+    "python.autoComplete.extraPaths": ["./python/venv/Scripts/python.exe"],
 }
