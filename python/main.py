@@ -59,14 +59,14 @@ def compare(test_list, rec_finger):
     # length = len(rec_finger)
     # check = False
 
-    for tuple_value, offset in test_list:   #음원과 녹음된 음원의 데이터를 일일이 비교
+    for tuple_value, offset in test_list:   #음원과 녹음된 음원의 데이터를 일일이 비교 [(), t1] 형태
         # if check:
         #     length -= 1
         #     if length < 0:
         #         check = False
         #         length = len(rec_finger)
-        for i, value in enumerate(rec_finger):   
-            rec_tuple, rec_offset = value
+        for i, value in enumerate(rec_finger):      #rec_finger는 [[(),t1],[(),t1],...] 형태
+            rec_tuple, rec_offset = value           #value는 [(),t1] 형태  
             # if i >= minimal and not check:
             #     break
 
@@ -74,9 +74,9 @@ def compare(test_list, rec_finger):
                 # check = True              #데이터가 일치할 때마다
                 # length = len(rec_finger)
                 if offset - rec_offset in result: #두 오프셋의 차이를 기록함
-                    result[offset - rec_offset] += 1
+                    result[offset - rec_offset] += 1    #이미 result에 오프셋 기록이 있을 때
                 else:
-                    result[offset - rec_offset] = 1
+                    result[offset - rec_offset] = 1     #처음으로 차이를 기록할 때
 
     return max(result.values()) if len(result) > 0 else 0
 
@@ -117,7 +117,7 @@ def rec_fingerprints(rec_peaks):
     '''
     fan_value = 15                                              #지문에서 탐색할 주파수 인덱스 범위
     data = []                                                   #지문 정보가 들어갈 리스트
-    f = open('./fingerprints/records.txt', 'w')
+    f = open(cwd + '/python/fingerprints/records.txt', 'w')
     for i in range(len(rec_peaks)):                             #스펙트로그램 주파수 영역 길이만큼
         for j in range(1, fan_value):                           #설정한 인덱스 범위만큼
             if (i+j) < len(rec_peaks):                          #녹음된 음원의 길이를 넘지 않게
@@ -135,7 +135,7 @@ def rec_fingerprints(rec_peaks):
     return data
 
 def save_tuple(): # fingerprint 튜플 저장 
-    path_data = '../data/fingerprints/'
+    path_data = cwd + '/data/fingerprints/'
     data = os.listdir(path_data)
     test_lists = []
 
@@ -143,20 +143,21 @@ def save_tuple(): # fingerprint 튜플 저장
         file = open(path_data + file_name,'r')
         test_lists.append((file_name, text2tuple(file)))
 
-    with open('./variables/test_lists', 'wb') as f:
+    with open(cwd + '/python/variables/test_lists', 'wb') as f:
         pickle.dump(test_lists, f)
 
 def load_tuple(): # fingerprint 튜플 불러오기
-    with open('./variables/test_lists', 'rb') as f:
+    with open(cwd + '/python/variables/test_lists', 'rb') as f:
         return pickle.load(f)
 
 if __name__ == "__main__":
+    cwd = os.getcwd()                           #현재 작업공간 루트
     save_tuple() # 생략 가능
     start = time.time()
     test_lists = load_tuple()
-    path_rec = './records/'
+    path_rec = cwd + '/python/records/'
     rec = os.listdir(path_rec)
-    rec_name = rec[5]
+    rec_name = rec[3]
     print("target:", rec_name)
 
     rec_peaks = spectogram.spectogram(path_rec + rec_name)     #녹음/일부 음원 스펙트로그램 적용
@@ -168,12 +169,15 @@ if __name__ == "__main__":
         offset = compare(test_list, rec_finger)  #비교 음원의 offset 차이의 최빈값을 구함
         if offset > 0:
             print(file_name, offset)
-        if max_value < offset:
+        if max_value < offset:                  #모든 음원과 비교하여 가장 offset 차이 횟수가 큰 값을 구함
             max_value = offset
             index = i
-    if max_value > 0:
+
+    match_prob = max_value / len(rec_finger)
+    if match_prob > 0.5:
         print("count:", max_value)
         print("result:", test_lists[index][0].replace('.txt','.wav'))
+        print("probability:", match_prob * 100,"%")
         print("time:", time.time() - start)
     else:
         print("result: None")

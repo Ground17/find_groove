@@ -29,12 +29,12 @@ def get_2D_peaks(array,array_index,avg,time):
 
 def Low_fre(frequency):
     '''
-
     :param frequency:   frequency interval, size = 1024
     :return:            max value of low frequency(under 512Hz)
 
     512Hz 이하의 저주파영역에서 가장 큰 주파수 값을 얻어옵니다.
     추후 장르 구분을 사용할 때 필요할까 싶어 10,20,40,80,160으로 세분화
+    주파수 인덱스 1칸이 11025 / 1024 = 10.77Hz를 의미함
     '''
     f_10 = frequency[1]             #max frequency <= 10Hz
     f_20 = frequency[2]             #10Hz < max frequency <= 20Hz
@@ -99,11 +99,10 @@ def FFT(audio_normalised):
 def audioread(file):
     '''
 
-    :param file:    audio file.wav
-    :return:        downsampled wave file
+    :param file:    audio file.mp3
+    :return:        downsampled mp3 file
 
-    웨이브 형식의 음악파일을 불러옵니다.
-    이것은 큰 저장공간이 필요하므로 mp3로 바꿔야합니다.
+    mp3 형식의 음악파일을 불러옵니다.
     '''
     ifile = wave.open(file)
     samples = ifile.getnframes()
@@ -115,6 +114,17 @@ def audioread(file):
     max_int16 = 2 ** 15
     audio_normalised = audio_as_np_float32 / max_int16
     return downsampling(audio_normalised, ifile.getframerate())
+
+    # from pydub import AudioSegment
+
+    # audio = AudioSegment.from_mp3(file)     #ffmpeg 다운로드 후 PATH 설정해야함
+
+    # audio = np.array(audio.set_channels(1).get_array_of_samples())  #mp3 스테레오 중 1개의 채널만 가져와 배열로 변경
+    # max_int = 2**15                 #최대값
+    # normal_audio = audio / max_int  #normalize 과정
+
+    # return downsampling(normal_audio)
+    
 
 def spectogram(file):
     '''
@@ -183,7 +193,7 @@ def spectogram(file):
     time = np.arange(0, length - 1024, 1024)                     #시간 array
     #time = np.arange(0, length - 1024, 1024) / fs / 2
 
-    peaks = get_2D_peaks(max_value, max_index, Low_avg*1.2, time)   #평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
+    peaks = get_2D_peaks(max_value, max_index, Low_avg*1.2, time)   #max 주파수 중에서 평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
     #fre_time = final_frequency*fs/1024
 
     '''fre = []
@@ -197,7 +207,7 @@ def spectogram(file):
 
     return peaks
 
-path = '../data/genres'
+path = os.getcwd() + '/data/genres'
 music_list = os.listdir(path)
 music_list = [item for item in music_list if os.path.isdir(os.path.join(path, item))] # 장르 10개 (['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock'])
 
@@ -212,7 +222,7 @@ if __name__ == "__main__":
         genre_path = path + '/' + k
         for l in os.listdir(genre_path):
             peaks = spectogram(genre_path + "/" + l)
-            f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
+            f = open('../data/fingerprints/'+l, 'w')    #fingerprints 폴더에 파일 이름 생성
             for i in range(len(peaks)):
                 for j in range(1, fan_value):
                     if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
