@@ -16,7 +16,7 @@
 # [START gae_python3_render_template]
 import datetime
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -32,9 +32,23 @@ def root():
 
     return render_template('index.html', times=dummy_times)
 
-@app.route('/search', methods=['GET', 'POST'])
+@app.route('/search', methods=['POST'])
 def search():
-    return jsonify({'message': 'success!', 'code': '200'})
+    params = request.get_json()
+    # ai: ML, DL 사용 여부
+    ai = params['ai'] 
+
+    # samples: 11025Hz로 샘플링된 float 형식 4초 분량 녹음 데이터
+    # 값 범위: (-1, 1)
+    # 길이: 44100 (11025 * 4)
+    samples = params['samples']
+    if ai:
+        # colab에서 훈련시킨 tf 모델 이식
+        return jsonify({'message': 'success!', 'code': 200, 'name': None, 'accuracy': 0})
+
+    ### 이 부분부터 수정해주시면 됩니다 ###
+
+    return jsonify({'message': 'success!', 'code': 200, 'name': None, 'accuracy': 0})
 
 
 if __name__ == '__main__':
