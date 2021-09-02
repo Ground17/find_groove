@@ -108,9 +108,17 @@ def audioread(file):
     ifile = wave.open(file)
     samples = ifile.getnframes()
     audio = ifile.readframes(samples)
+    channel = ifile.getnchannels()
 
     audio_as_np_int16 = np.frombuffer(audio, dtype=np.int16)
     audio_as_np_float32 = audio_as_np_int16.astype(np.float32)
+
+    if channel != 1:
+        print(audio_as_np_float32.shape)
+        audio_as_np_float32 = audio_as_np_float32.reshape((-1, 2))
+        audio_as_np_float32 = audio_as_np_float32.sum(axis=1) / 2
+        
+        print(audio_as_np_float32.shape)
 
     max_int16 = 2 ** 15
     audio_normalised = audio_as_np_float32 / max_int16
@@ -148,7 +156,7 @@ def spectogram(file):
 
     length = len(audio_normalised)
     window = np.hamming(1024)                                   #탭 수 1024인 해밍윈도우 생성
-    window_512 = np.hamming(512)
+    # window_512 = np.hamming(512)
 
     frequencies = []
 
@@ -179,8 +187,8 @@ def spectogram(file):
         max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
         max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
         max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
-    plt.plot(frequencies[0])
-    plt.show()
+    # plt.plot(frequencies[0])
+    # plt.show()
 
     Low_avg = sum(low_frequency)/len(low_frequency)             #모든 시간영역에서 가장 큰 저주파수 크기의 평균값
     time = np.arange(0, length - 1024, 1024)                     #시간 array
