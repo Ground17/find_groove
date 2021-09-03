@@ -1,3 +1,5 @@
 data/genres.tar.gz
 data/genres
 .vscode/
+python/venv/
+venv/

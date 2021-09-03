@@ -15,8 +15,12 @@
 # [START gae_python38_render_template]
 # [START gae_python3_render_template]
 import datetime
+import time
 
 from flask import Flask, render_template, request, jsonify
+import compare
+import spectrogram
+import data_process
 
 app = Flask(__name__)
 
@@ -25,10 +29,7 @@ app = Flask(__name__)
 def root():
     # For the sake of example, use static information to inflate the template.
     # This will be replaced with real information in later steps.
-    dummy_times = [datetime.datetime(2018, 1, 1, 10, 0, 0),
-                   datetime.datetime(2018, 1, 2, 10, 30, 0),
-                   datetime.datetime(2018, 1, 3, 11, 0, 0),
-                   ]
+    dummy_times = [datetime.datetime(2021, 9, 3, 23, 59, 59)]
 
     return render_template('index.html', times=dummy_times)
 
@@ -42,13 +43,44 @@ def search():
     # 값 범위: (-1, 1)
     # 길이: 44100 (11025 * 4)
     samples = params['samples']
+
     if ai:
         # colab에서 훈련시킨 tf 모델 이식
-        return jsonify({'message': 'success!', 'code': 200, 'name': None, 'accuracy': 0})
+
+        return jsonify({'message': 'success! AI, ML, DL', 'code': 200, 'name': 'None', 'accuracy': 0.0})
 
     ### 이 부분부터 수정해주시면 됩니다 ###
+    start = time.time()
+    test_lists = compare.load_tuple()
 
-    return jsonify({'message': 'success!', 'code': 200, 'name': None, 'accuracy': 0})
+    rec_peaks = spectrogram.spectrogram(samples)     #녹음/일부 음원 스펙트로그램 적용
+    rec_finger = compare.rec_fingerprints(rec_peaks)    #녹음된 음원 지문을 기록
+    index = -1
+    max_value = 0
+    for i, v in enumerate(test_lists):
+        file_name, test_list = v
+        offset = compare.compare(test_list, rec_finger)  #비교 음원의 offset 차이의 최빈값을 구함
+        if offset > 0:
+            print(file_name, offset)
+        if max_value < offset:
+            max_value = offset
+            index = i
+    if max_value > 0:
+        print("count:", max_value)
+        print("result:", test_lists[index][0].replace('.txt','.wav'))
+        print("time:", time.time() - start)
+    else:
+        print("result: None")
+        print("time: ", time.time() - start)
+
+    # 반환 기본 틀은 바뀌면 안 됩니다.
+    # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float)
+    return jsonify({
+        'message': 'success!',
+        'code': 200,
+        'name': test_lists[index][0].replace('.txt','.wav'),
+        'accuracy': 0.5
+        })
 
 
 if __name__ == '__main__':
@@ -59,6 +91,6 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True) # 왠만하면 바꾸지 말아주세요
 # [END gae_python3_render_template]
 # [END gae_python38_render_template]
