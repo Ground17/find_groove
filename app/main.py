@@ -47,7 +47,15 @@ def search():
     if ai:
         # colab에서 훈련시킨 tf 모델 이식
 
-        return jsonify({'message': 'success! AI, ML, DL', 'code': 200, 'name': 'None', 'accuracy': 0.0})
+        # 반환 기본 틀은 바뀌면 안 됩니다.
+        # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float, 'time': float)
+        return jsonify({
+            'message': 'success!',
+            'code': 200,
+            'name': 'temp',
+            'accuracy': 0.5,
+            'time': 0.0
+            })
 
     ### 이 부분부터 수정해주시면 됩니다 ###
     start = time.time()
@@ -79,7 +87,8 @@ def search():
         'message': 'success!',
         'code': 200,
         'name': test_lists[index][0].replace('.txt','.wav'),
-        'accuracy': 0.5
+        'accuracy': 0.5,
+        'time': 0.0
         })
 
 
