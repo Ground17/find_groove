@@ -70,7 +70,8 @@ def compare(test_list, rec_finger):
             # if i >= minimal and not check:
             #     break
 
-            if rec_tuple == tuple_value:    
+            if rec_tuple == tuple_value:
+            # if rec_tuple[0]==tuple_value[0] and abs(rec_tuple[1]-tuple_value[1]) < 2:
                 # check = True              #데이터가 일치할 때마다
                 # length = len(rec_finger)
                 if offset - rec_offset in result: #두 오프셋의 차이를 기록함
@@ -132,11 +133,10 @@ def rec_fingerprints(rec_peaks):
                     
     return data
 
-def save_tuple(): # fingerprint 튜플 저장 
+def save_tuple(): # fingerprint 튜플 저장
     path_data = '../data/fingerprints/'
     data = os.listdir(path_data)
     test_lists = []
-
     for file_name in data:
         file = open(path_data + file_name,'r')
         test_lists.append((file_name, text2tuple(file)))
