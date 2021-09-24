@@ -21,6 +21,10 @@ from flask import Flask, render_template, request, jsonify
 import compare
 import spectrogram
 import data_process
+import os
+import wave
+import struct
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -35,6 +39,9 @@ def root():
 
 @app.route('/search', methods=['POST'])
 def search():
+    # f = request.files['file']
+    # f.save('./files/' + secure_filename(f.filename))
+
     params = request.get_json()
     # ai: ML, DL 사용 여부
     ai = params['ai'] 
@@ -43,6 +50,25 @@ def search():
     # 값 범위: (-1, 1)
     # 길이: 44100 (11025 * 4)
     samples = params['samples']
+
+    # wav_file = wave.open('rec_music2.wav', "w")
+
+    #녹음된 음원을 파일로 저장할 때 활성화하면 됩니다.
+    # data_size = len(samples)
+    # nchannels = 1
+    # sampwidth = 2
+    # framerate = 44100/4
+    # nframes = data_size
+    # comptype = "NONE"
+    # compname = "not compressed"
+
+    # wav_file.setparams((nchannels, sampwidth, framerate, nframes,
+    # comptype, compname))
+
+    # for s in samples:
+    #     wav_file.writeframes(struct.pack('h',int(32000*s)))
+
+    # wav_file.close()
 
     if ai:
         # colab에서 훈련시킨 tf 모델 이식
@@ -65,22 +91,40 @@ def search():
         if max_value < offset:
             max_value = offset
             index = i
-    if max_value > 0:
+
+    match_prob = max_value / len(rec_finger)
+    if match_prob > 0.05:
         print("count:", max_value)
         print("result:", test_lists[index][0].replace('.txt','.wav'))
+        print("probability:", match_prob * 100,"%")
         print("time:", time.time() - start)
+
+        # 반환 기본 틀은 바뀌면 안 됩니다.
+        # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float)
+        
+        return jsonify({
+            'message': 'success!',
+            'code': 200,
+            'name': test_lists[index][0].replace('.txt','.wav'),
+            'accuracy': match_prob
+            })
     else:
         print("result: None")
         print("time: ", time.time() - start)
 
-    # 반환 기본 틀은 바뀌면 안 됩니다.
-    # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float)
-    return jsonify({
-        'message': 'success!',
-        'code': 200,
-        'name': test_lists[index][0].replace('.txt','.wav'),
-        'accuracy': 0.5
-        })
+        return jsonify({
+            'message': 'failed!',
+            'code': 200,
+            'name': 'None',
+            'accuracy': match_prob
+            })
+    # if max_value > 0:
+    #     print("count:", max_value)
+    #     print("result:", test_lists[index][0].replace('.txt','.wav'))
+    #     print("time:", time.time() - start)
+    # else:
+    #     print("result: None")
+    #     print("time: ", time.time() - start)
 
 
 if __name__ == '__main__':
