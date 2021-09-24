@@ -73,7 +73,15 @@ def search():
     if ai:
         # colab에서 훈련시킨 tf 모델 이식
 
-        return jsonify({'message': 'success! AI, ML, DL', 'code': 200, 'name': 'None', 'accuracy': 0.0})
+        # 반환 기본 틀은 바뀌면 안 됩니다.
+        # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float, 'time': float)
+        return jsonify({
+            'message': 'success!',
+            'code': 200,
+            'name': 'temp',
+            'accuracy': 0.5,
+            'time': 0.0
+            })
 
     ### 이 부분부터 수정해주시면 됩니다 ###
     start = time.time()
@@ -112,12 +120,6 @@ def search():
         print("result: None")
         print("time: ", time.time() - start)
 
-        return jsonify({
-            'message': 'failed!',
-            'code': 200,
-            'name': 'None',
-            'accuracy': match_prob
-            })
     # if max_value > 0:
     #     print("count:", max_value)
     #     print("result:", test_lists[index][0].replace('.txt','.wav'))
@@ -126,6 +128,15 @@ def search():
     #     print("result: None")
     #     print("time: ", time.time() - start)
 
+    # 반환 기본 틀은 바뀌면 안 됩니다.
+    # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float)
+        return jsonify({
+            'message': 'failed!',
+            'code': 200,
+            'name': 'None',
+            'accuracy': 0.5,
+            'time': 0.0
+            })
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
