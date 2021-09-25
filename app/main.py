@@ -17,9 +17,10 @@
 import datetime
 import time
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, url_for
 import compare
 import spectrogram
+import tensorflow as tf
 import data_process
 
 app = Flask(__name__)
@@ -35,6 +36,7 @@ def root():
 
 @app.route('/search', methods=['POST'])
 def search():
+    start = time.time()
     params = request.get_json()
     # ai: ML, DL 사용 여부
     ai = params['ai'] 
@@ -44,8 +46,27 @@ def search():
     # 길이: 44100 (11025 * 4)
     samples = params['samples']
 
+    ### 임시 테스트 wav 파일 생성 코드 ###
+    import wave
+    import struct
+    wav_file = wave.open('./static/ai_inputs/test/100_4.wav', mode='wb') # 91_1 ~ 100_3
+    wav_file.setparams((1, 2, 11025, 44100, "NONE", "not compressed"))
+
+    amp = 64000.0
+    for s in samples:
+        # write the audio frames to file
+        wav_file.writeframes(struct.pack('h', int(s * amp / 2)))
+
+    wav_file.close()
+    #####################################
+
     if ai:
         # colab에서 훈련시킨 tf 모델 이식
+        mlp_vote = tf.keras.models.load_model('./static/models/mlp_vote')
+        cnn_vote = tf.keras.models.load_model('./static/models/cnn_vote')
+        cnn_rnn = tf.keras.models.load_model('./static/models/cnn_rnn')
+
+        # mlp_vote.summary()
 
         # 반환 기본 틀은 바뀌면 안 됩니다.
         # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float, 'time': float)
@@ -54,11 +75,10 @@ def search():
             'code': 200,
             'name': 'temp',
             'accuracy': 0.5,
-            'time': 0.0
+            'time': time.time() - start
             })
 
     ### 이 부분부터 수정해주시면 됩니다 ###
-    start = time.time()
     test_lists = compare.load_tuple()
 
     rec_peaks = spectrogram.spectrogram(samples)     #녹음/일부 음원 스펙트로그램 적용
@@ -76,10 +96,8 @@ def search():
     if max_value > 0:
         print("count:", max_value)
         print("result:", test_lists[index][0].replace('.txt','.wav'))
-        print("time:", time.time() - start)
     else:
         print("result: None")
-        print("time: ", time.time() - start)
 
     # 반환 기본 틀은 바뀌면 안 됩니다.
     # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float)
@@ -88,7 +106,7 @@ def search():
         'code': 200,
         'name': test_lists[index][0].replace('.txt','.wav'),
         'accuracy': 0.5,
-        'time': 0.0
+        'time': time.time() - start
         })
 
 
