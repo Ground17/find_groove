@@ -9,43 +9,70 @@ import compare
 global fs
 fs = 44100/4
 
-def get_2D_peaks(array,array_index,avg,time):
+# def get_2D_peaks(array,array_index,avg,time):
+#     '''
+
+#     :param array:       frequency magnitude array
+#     :param array_index: frequency magnitude index array
+#     :param avg:         frequency average under 512Hz of a full length of song
+#     :param time:        time information of frequency
+#     :return:            list of tuple (frequency >= avg*weight , time)
+
+#     주파수 영역에서 평균값 * 보정값보다 큰 주파수와 그 때의 시간 정보를 얻어옵니다.
+#     보정값은 설계자가 임의로 설정 가능
+#     '''
+#     Nonzero_index=[]                                        #평균값 * 보정값보다 큰 주파수 인덱스들의 모임
+
+#     for i in range(len(array)):
+#         if array[i] >= avg:
+#             Nonzero_index.append((array_index[i],time[i]))  #[0]: 주파수 [1]: 시간
+#     return Nonzero_index
+
+def get_2D_peaks(frequencies, weight):
     '''
 
-    :param array:       frequency magnitude array
-    :param array_index: frequency magnitude index array
-    :param avg:         frequency average under 512Hz of a full length of song
-    :param time:        time information of frequency
-    :return:            list of tuple (frequency >= avg*weight , time)
+    :param frequencies:   audio frequency list
+    :return:              array of over mean of band frequency
 
-    주파수 영역에서 평균값 * 보정값보다 큰 주파수와 그 때의 시간 정보를 얻어옵니다.
-    보정값은 설계자가 임의로 설정 가능
+    각 주파수 밴드에서 가장 큰 주파수 값을 각가 얻어옵니다.
     '''
-    Nonzero_index=[]                                        #평균값 * 보정값보다 큰 주파수 인덱스들의 모임
+    # f_10 = []
+    # f_20 = []
+    f_40 = []
+    f_80 = []
+    f_160 = []
+    f_320 = []
+    f_511 = []
 
-    for i in range(len(array)):
-        if array[i] >= avg:
-            Nonzero_index.append((array_index[i],time[i]))  #[0]: 주파수 [1]: 시간
-    return Nonzero_index
+    for i in range(len(frequencies)):
+    #     f_10.append(max(frequencies[i][0:15]))       #max frequency <= 107Hz very low
+    #     f_20.append(max(frequencies[i][15:20]))      #107Hz < max frequency <= 214Hz low
+        f_40.append(max(frequencies[i][18:40]))      #193Hz < max frequency <= 428Hz low-mid
+        f_80.append(max(frequencies[i][40:80]))      #428Hz < max frequency <= 856Hz mid
+        f_160.append(max(frequencies[i][80:160]))    #856Hz < max frequency <= 1712Hz mid-high
+        f_320.append(max(frequencies[i][160:320]))   #1712Hz < max frequency <= 3445Hz high
+        f_511.append(max(frequencies[i][320:511]))   #3445Hz < max frequency <= 5491Hz very high
 
-def Low_fre(frequency):
-    '''
+    mean_band = (max(f_40)+max(f_80)+max(f_160)+max(f_320)+max(f_511))/5 * weight  #모든 시간에서 각 밴드의 최대값의 평균
+    result = []
+    for i in range(len(frequencies)):
+        # if f_10[i] > mean_band:
+        #     result.append((frequencies[i][0:10].index(f_10[i]), i * 1024))
+        # if f_20[i] > mean_band:
+        #     result.append((frequencies[i][18:20].index(f_20[i]) + 15, i * 1024))
+        if f_40[i] > mean_band:
+            result.append((frequencies[i][18:40].index(f_40[i]) + 18, i * 1024))        #최대값의 주파수 인덱스와 시간 기록
+        if f_80[i] > mean_band:
+            result.append((frequencies[i][40:80].index(f_80[i]) + 40, i * 1024))
+        if f_160[i] > mean_band:
+            result.append((frequencies[i][80:160].index(f_160[i]) + 80, i * 1024))
+        if f_320[i] > mean_band:
+            result.append((frequencies[i][160:320].index(f_320[i]) + 160, i * 1024))
+        if f_511[i] > mean_band:
+            result.append((frequencies[i][320:511].index(f_511[i]) + 320, i * 1024))
 
-    :param frequency:   frequency interval, size = 1024
-    :return:            max value of low frequency(under 512Hz)
-
-    512Hz 이하의 저주파영역에서 가장 큰 주파수 값을 얻어옵니다.
-    추후 장르 구분을 사용할 때 필요할까 싶어 10,20,40,80,160으로 세분화
-    '''
-    f_10 = frequency[1]             #max frequency <= 10Hz
-    f_20 = frequency[2]             #10Hz < max frequency <= 20Hz
-    f_40 = max(frequency[3:5])      #20Hz < max frequency <= 40Hz
-    f_80 = max(frequency[5:9])      #40Hz < max frequency <= 80Hz
-    f_160 = max(frequency[9:16])    #80Hz < max frequency <= 160Hz
-    f_511 = max(frequency[16:48])   #160Hz < max frequency <= 511Hz
-
-    #return (f_10+f_20+f_40+f_80+f_160+f_511)/6
-    return max([f_10,f_20,f_40,f_80,f_160,f_511])
+    return result
+    #return max([f_10,f_20,f_40,f_80,f_160,f_511])
 
 def downsampling(files, sample=44100):
     '''
@@ -86,7 +113,8 @@ def FFT(audio_normalised):
     '''
     N = len(audio_normalised)
     frequency = np.fft.fft(audio_normalised) / N
-    frequency = frequency[range(math.trunc(N / 2))]
+    # frequency = frequency[range(math.trunc(N / 2))]
+    frequency = frequency[range(int(N / 2))]
     frequency = 2 * abs(frequency)
     frequency = frequency.tolist()
     #f0 = np.arange(N) / N
@@ -106,6 +134,17 @@ def audioread(file):
     웨이브 형식의 음악파일을 불러옵니다.
     이것은 큰 저장공간이 필요하므로 mp3로 바꿔야합니다.
     '''
+
+    # from pydub import AudioSegment
+
+    # audio = AudioSegment.from_mp3(file)     #ffmpeg 다운로드 후 PATH 설정해야함
+
+    # audio = np.array(audio.set_channels(1).get_array_of_samples())  #mp3 스테레오 중 1개의 채널만 가져와 배열로 변경
+    # #max_int = 2**15                 #최대값
+    # max_int = np.max(audio)
+    # normal_audio = audio / max_int  #normalize 과정
+
+    # return downsampling(normal_audio)
     ifile = wave.open(file)
     samples = ifile.getnframes()
     audio = ifile.readframes(samples)
@@ -125,7 +164,7 @@ def audioread(file):
     audio_normalised = audio_as_np_float32 / max_int16
     return downsampling(audio_normalised, ifile.getframerate())
 
-def spectrogram(file):
+def spectrogram(file, weight = 1):
     '''
 
     :param file:    wave file
@@ -160,10 +199,8 @@ def spectrogram(file):
     # window_512 = np.hamming(512)
 
     frequencies = []
-
-    low_frequency = []
-    max_value = []
-    max_index = []
+    # max_value = []
+    # max_index = []
 
     for i in range(0, length - 1024, 1024):
         audio_cut = []
@@ -172,30 +209,32 @@ def spectrogram(file):
         frequency = FFT(audio_cut)                              #잘린 부분 FFT 변환
         frequencies.append(frequency)
 
-    for i in range(len(frequencies)):
-        # for j in range(512):
-        #     frequencies[i][j] -= summary[j]
-        # frequencies[i][0] = frequencies[i][1] = 0
-        low_frequency.append(Low_fre(frequencies[i]))                #잘린 구간 저주파수 영역에서 가장 큰 주파수 크기 등록
-        max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
-        max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
-        max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
+    peaks = get_2D_peaks(frequencies, weight)
+    # for i in range(len(frequencies)):
+    #     # for j in range(512):
+    #     #     frequencies[i][j] -= summary[j]
+    #     # frequencies[i][0] = frequencies[i][1] = 0
+    #     band_frequency.append(band_fre(frequencies[i]))                #6개 밴드 주파수 영역에서 가장 큰 주파수 크기 등록
+    #     max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
+    #     max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
+    #     max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
 
-    Low_avg = sum(low_frequency)/len(low_frequency)             #모든 시간영역에서 가장 큰 저주파수 크기의 평균값
-    time = np.arange(0, length - 1024, 1024)                     #시간 array
+    # Low_avg = sum(band_frequency)/len(band_frequency)             #모든 시간영역에서 가장 큰 밴드 주파수 크기의 평균값
+    # time = np.arange(0, length - 1024, 1024)                     #시간 array
     #time = np.arange(0, length - 1024, 1024) / fs / 2
 
-    peaks = get_2D_peaks(max_value, max_index, Low_avg*1.2, time)   #평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
+    # peaks = get_2D_peaks(max_value, max_index, 1.2, time)   #평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
     #fre_time = final_frequency*fs/1024
 
-    '''fre = []
+    #스펙트로그램 확인하고 싶을 때 활성화
+    fre = []
     time = []
-    for i in range(len(peaks)):
-        fre.append(peaks[i][0])
-        time.append(peaks[i][1])
+    for i, peak in enumerate(peaks):
+        fre.append(peak[0])
+        time.append(peak[1])
 
-    plt.plot(time,fre,'x',alpha = 0.2)
-    plt.show()'''
+    plt.scatter(np.array(time)/fs,fre,marker = 'x',alpha = 0.2)
+    # plt.show()
 
     return peaks
 
@@ -204,7 +243,9 @@ def spectrogram(file):
     fingerprint를 얻는 과정입니다.
 '''
 if __name__ == "__main__": # 로컬 가상 서버에서만 호출합니다.
+    # cwd = os.getcwd()
     path = '../data/genres'
+    #path = '../data/genres'
     music_list = os.listdir(path)
     music_list = [item for item in music_list if os.path.isdir(os.path.join(path, item))] # 장르 10개 (['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock'])
 
@@ -212,7 +253,7 @@ if __name__ == "__main__": # 로컬 가상 서버에서만 호출합니다.
     for k in music_list:
         genre_path = path + '/' + k
         for l in os.listdir(genre_path):
-            peaks = spectrogram(genre_path + "/" + l)
+            peaks = spectrogram(genre_path + "/" + l, weight = 0.6)
             f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
             for i in range(len(peaks)):
                 for j in range(1, fan_value):
