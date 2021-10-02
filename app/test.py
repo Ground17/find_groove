@@ -45,9 +45,7 @@ def draw_sprgram(file1,file2, weight1, weight2):
     spectrogram.spectrogram(file2, weight2)
     plt.show()
 
-# sample_fre, sigData = wavfile.read(file1)
-# plt.specgram(sigData, Fs = sample_fre)
-# plt.show()
+
 
 def drawfft(file1, file2):
     '''
@@ -55,20 +53,45 @@ def drawfft(file1, file2):
     file2: 녹음된 음원
     return: 각각의 FFT 주파수 그래프
     '''
+    import wave
+    import numpy as np
+
     audio1 = spectrogram.audioread(file1)
     audio2 = spectrogram.audioread(file2)
+    # ifile = wave.open(file2)
+    # samples = ifile.getnframes()
+    # audio = ifile.readframes(samples)
+    # audio_as_np_int16 = np.frombuffer(audio, dtype=np.int16)
+    # audio_as_np_float32 = audio_as_np_int16.astype(np.float32)
+    # max_int16 = 2 ** 15
+    # audio2 = audio_as_np_float32 / max_int16
+
     fre1 = spectrogram.FFT(audio1)
     fre2 = spectrogram.FFT(audio2)
-    N1 = len(audio1)
-    N2 = len(audio2)
-    f1 = [i/N1/2*11025 for i in range(int(N1/2))]
-    f2 = [i/N2/2*11025 for i in range(int(N2/2))]
+    N1 = len(fre1)
+    N2 = len(fre2)
+    L = N1/N2
+    fre3 = []
+    for i in range(N2):
+        if i*L < N1:
+            if fre1[int(i*L)] != 0:
+                fre3.append(fre2[i]/fre1[int(i*L)])
+            else:
+                fre3.append(0)
+    
+    N3 = len(fre3)
+    f1 = [i/N1/2*11025 for i in range(int(N1))]
+    f2 = [i/N2/2*11025 for i in range(int(N2))]
+    f3 = [i/N3/2*11025 for i in range(int(N3))]
     plt.figure(1)
     plt.title('file1 Origin')
     plt.plot(f1,fre1)
     plt.figure(2)
     plt.title('file2 Recoreded')
     plt.plot(f2,fre2)
+    plt.figure(3)
+    plt.title("ratio recorded / origin")
+    plt.plot(f3,fre3)
     plt.show()
 
 def match_test(file):
@@ -98,10 +121,15 @@ def match_test(file):
         print("probability:", match_prob * 100,"%")
 
 if __name__ == "__main__":
-    file2 = '../rec_music1.wav'
-    file1 = '../data/genres/blues/blues.00001.wav'
+    file2 = '../data/test_data/test00002.wav'
+    file1 = '../data/rec_data/country/country.00003.wav'
 
     find_weight(file1,file2)
     # drawfft(file1,file2)
     # draw_sprgram(file1,file2, 0.6,1)
-    # match_test(file1)
+    # match_test(file2)
+    # file1 = spectrogram.audioread(file1)
+    # sample_fre, sigData = wavfile.read(file1)
+    # plt.specgram(sigData, sample_fre)
+    # plt.title("file1 Origin")
+    # plt.show()

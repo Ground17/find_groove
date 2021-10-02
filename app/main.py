@@ -51,24 +51,24 @@ def search():
     # 길이: 44100 (11025 * 4)
     samples = params['samples']
 
-    # wav_file = wave.open('rec_music2.wav', "w")
-
     #녹음된 음원을 파일로 저장할 때 활성화하면 됩니다.
-    # data_size = len(samples)
-    # nchannels = 1
-    # sampwidth = 2
-    # framerate = 44100/4
-    # nframes = data_size
-    # comptype = "NONE"
-    # compname = "not compressed"
 
-    # wav_file.setparams((nchannels, sampwidth, framerate, nframes,
-    # comptype, compname))
+    wav_file = wave.open('./test_data/test00009.wav', "w")
+    data_size = len(samples)
+    nchannels = 1
+    sampwidth = 2
+    framerate = 44100/4
+    nframes = data_size
+    comptype = "NONE"
+    compname = "not compressed"
 
-    # for s in samples:
-    #     wav_file.writeframes(struct.pack('h',int(32000*s)))
+    wav_file.setparams((nchannels, sampwidth, framerate, nframes,
+    comptype, compname))
 
-    # wav_file.close()
+    for s in samples:
+        wav_file.writeframes(struct.pack('h',int(32000*s)))
+
+    wav_file.close()
 
     if ai:
         # colab에서 훈련시킨 tf 모델 이식

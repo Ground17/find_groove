@@ -3,3 +3,5 @@ data/genres
 .vscode/
 python/venv/
 venv/
+*.wav
+app/*.wav

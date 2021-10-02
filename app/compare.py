@@ -134,16 +134,18 @@ def rec_fingerprints(rec_peaks):
     return data
 
 def save_tuple(): # fingerprint 튜플 저장
-    path_data = '../data/fingerprints/'
+    path_data = '../data/rec_fingerprints/'
     data = os.listdir(path_data)
     test_lists = []
     for file_name in data:
         file = open(path_data + file_name,'r')
         test_lists.append((file_name, text2tuple(file)))
 
-    with open('./static/variables/test_lists', 'wb') as f:
+    # with open('./static/variables/test_lists', 'wb') as f:
+    with open('./static/variables/rec_test_lists', 'wb') as f:
         pickle.dump(test_lists, f)
 
 def load_tuple(): # fingerprint 튜플 불러오기
-    with open('./static/variables/test_lists', 'rb') as f:
+    # with open('./static/variables/test_lists', 'rb') as f:
+    with open('./static/variables/rec_test_lists', 'rb') as f:
         return pickle.load(f)
