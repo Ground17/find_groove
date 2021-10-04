@@ -244,8 +244,8 @@ def spectrogram(file, weight = 1):
 '''
 if __name__ == "__main__": # 로컬 가상 서버에서만 호출합니다.
     # cwd = os.getcwd()
-    path = '../data/genres'
-    #path = '../data/genres'
+    # path = '../data/genres'
+    path = '../data/rec_data'
     music_list = os.listdir(path)
     music_list = [item for item in music_list if os.path.isdir(os.path.join(path, item))] # 장르 10개 (['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock'])
 
@@ -254,7 +254,8 @@ if __name__ == "__main__": # 로컬 가상 서버에서만 호출합니다.
         genre_path = path + '/' + k
         for l in os.listdir(genre_path):
             peaks = spectrogram(genre_path + "/" + l, weight = 0.6)
-            f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
+            f = open('../data/rec_fingerprints/'+l.replace('.wav','.txt'), 'w')
+            # f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
             for i in range(len(peaks)):
                 for j in range(1, fan_value):
                     if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
