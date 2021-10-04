@@ -57,7 +57,7 @@ def search():
     ### 임시 테스트 wav 파일 생성 코드 ###
     # import wave
     # import struct
-    # wav_file = wave.open('./static/ai_inputs/test/100_4.wav', mode='wb') # 91_1 ~ 100_3
+    # wav_file = wave.open('./static/ai_inputs/test/1-0.wav', mode='wb') # 91_1 ~ 100_3
     # wav_file.setparams((1, 2, 11025, 44100, "NONE", "not compressed"))
 
     # amp = 64000.0
@@ -66,6 +66,7 @@ def search():
     #     wav_file.writeframes(struct.pack('h', int(s * amp / 2)))
 
     # wav_file.close()
+    # return None
     #####################################
 
     if ai:
@@ -74,10 +75,21 @@ def search():
         cnn_vote = tf.keras.models.load_model('./static/models/cnn_vote.h5')
         cnn_rnn = tf.keras.models.load_model('./static/models/cnn_rnn.h5')
 
-        with open('./static/variables/title', 'rb') as f:
-            title = pickle.load(f)
         array_X = []
         ffts = data_process.spectrogram(samples) # (length, 512) => (512, 10)
+
+        train_X = np.array(ffts)
+
+        for i in range(len(train_X)):
+            if np.std(train_X[i]) == 0:
+                continue
+            train_X[i] = (train_X[i] - np.mean(train_X[i])) / np.std(train_X[i])
+        
+        predictions = mlp_vote.predict(train_X)
+        print(np.argmax(predictions, axis=1))
+
+        train_X = []
+
         for m in range(len(ffts)): # 10개씩 쌓기
             temp10 = []
             for n in range(10):
@@ -100,13 +112,14 @@ def search():
         train_X = train_X[..., np.newaxis]
 
         predictions = cnn_vote.predict(train_X)
+        print(np.argmax(predictions, axis=1))
 
         # 반환 기본 틀은 바뀌면 안 됩니다.
         # key 4개('message': string, 'code': int, 'name': string, 'accuracy': float, 'time': float)
         return jsonify({
             'message': 'success!',
             'code': 200,
-            'name': title[mode(np.argmax(predictions, axis=1))[0][0]],
+            'name': str(mode(np.argmax(predictions, axis=1))[0][0]),
             'accuracy': 0.0,
             'time': time.time() - start
         })
@@ -174,14 +187,14 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    # app.run(host='0.0.0.0', port=8080, debug=True) # 왠만하면 바꾸지 말아주세요
-    mlp_vote = tf.keras.models.load_model('./static/models/mlp_vote.h5')
-    cnn_vote = tf.keras.models.load_model('./static/models/cnn_vote.h5')
-    cnn_rnn = tf.keras.models.load_model('./static/models/cnn_rnn.h5')
-    with open('./static/variables/title', 'rb') as f:
-        title = pickle.load(f)
-    path = './static/ai_inputs/test'
-    music_list = os.listdir(path)
+    app.run(host='0.0.0.0', port=8080, debug=True) # 왠만하면 바꾸지 말아주세요
+    # mlp_vote = tf.keras.models.load_model('./static/models/mlp_vote.h5')
+    # cnn_vote = tf.keras.models.load_model('./static/models/cnn_vote.h5')
+    # cnn_rnn = tf.keras.models.load_model('./static/models/cnn_rnn.h5')
+    # with open('./static/variables/title', 'rb') as f:
+    #     title = pickle.load(f)
+    # path = './static/ai_inputs/test'
+    # music_list = os.listdir(path)
 
     # #1 - mlp_vote
     # for b in music_list:
@@ -202,37 +215,38 @@ if __name__ == '__main__':
     #     print(b)
     #     print(title[mode(np.argmax(predictions, axis=1))[0][0]])
         
-    #2 - cnn_vote
-    for b in music_list:
-        array_X = []
-        genre_path = path + '/' + b
-        ffts = data_process.spectrogram(genre_path) # (length, 512) => (512, 10)
-        for m in range(len(ffts)): # 10개씩 쌓기
-            temp10 = []
-            for n in range(10):
-                if m + n < len(ffts):
-                    temp10.append(ffts[m + n])
-            if len(temp10) == 10:
-                array_X.append(temp10)
-                temp10 = []
-        train_X = np.array(array_X)
+    # #2 - cnn_vote
+    # for b in music_list:
+    #     array_X = []
+    #     genre_path = path + '/' + b
+    #     ffts = data_process.spectrogram(genre_path) # (length, 512) => (512, 10)
+    #     for m in range(len(ffts)): # 10개씩 쌓기
+    #         temp10 = []
+    #         for n in range(10):
+    #             if m + n < len(ffts):
+    #                 temp10.append(ffts[m + n])
+    #         if len(temp10) == 10:
+    #             array_X.append(temp10)
+    #             temp10 = []
+    #     train_X = np.array(array_X)
 
-        for i in range(len(train_X)):
-            for j in range(len(train_X[i])):
-                if np.std(train_X[i, j]) == 0:
-                    continue
-                train_X[i, j] = (train_X[i, j] - np.mean(train_X[i, j])) / np.std(train_X[i, j])
+    #     for i in range(len(train_X)):
+    #         for j in range(len(train_X[i])):
+    #             if np.std(train_X[i, j]) == 0:
+    #                 continue
+    #             train_X[i, j] = (train_X[i, j] - np.mean(train_X[i, j])) / np.std(train_X[i, j])
                 
 
-        train_X = np.swapaxes(train_X, 1, 2)
+    #     train_X = np.swapaxes(train_X, 1, 2)
 
-        train_X = train_X[..., np.newaxis]
+    #     train_X = train_X[..., np.newaxis]
 
-        predictions = cnn_vote.predict(train_X)
-        print(b)
-        print(title[mode(np.argmax(predictions, axis=1))[0][0]])
+    #     predictions = cnn_vote.predict(train_X)
+    #     print(b)
+    #     print(np.argmax(predictions, axis=1))
+    #     print(mode(np.argmax(predictions, axis=1)))
 
-    # #3 - cnn_rnn
+    #3 - cnn_rnn
     # array_X = []
     # for b in music_list:
     #     genre_path = path + '/' + b
@@ -249,7 +263,7 @@ if __name__ == '__main__':
     #             array_X.append(temp3)
     #             temp3 = []
 
-    #             train_X = np.swapaxes(np.array(array_X), 2, 3)
+    #     train_X = np.swapaxes(np.array(array_X), 2, 3)
 
     #     # 스케일 조정 - mean: 0, std: 1
     #     for i in range(len(train_X)):
