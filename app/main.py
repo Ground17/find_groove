@@ -179,7 +179,8 @@ def search():
         recommend3 = "%s.0000%d"%(genre[answer[3][1] // 10], answer[3][1] % 10)
         accuracy = max(match_prob, answer[0][0] / len(train_X))
     else:
-        if match_prob < answer[0][0] / len(train_X): # ml 모델 채택
+        # 녹음파일 fingerprint가 너무 적거나 정확도가 ml보다 떨어지면 ml 모델 채택
+        if len(rec_finger) < len(samples) // 11025 or match_prob < answer[0][0] / len(train_X): 
             title = "%s.0000%d"%(genre[answer[0][1] // 10], answer[0][1] % 10)
             recommend1 = "%s.0000%d"%(genre[answer[1][1] // 10], answer[1][1] % 10)
             recommend2 = "%s.0000%d"%(genre[answer[2][1] // 10], answer[2][1] % 10)
@@ -200,7 +201,7 @@ def search():
         'recommend1': recommend1,
         'recommend2': recommend2,
         'recommend3': recommend3, 
-        'accuracy': accuracy * 100,
+        'accuracy': accuracy,
         'time': time.time() - start,
         })
 

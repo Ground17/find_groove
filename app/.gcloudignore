@@ -13,6 +13,8 @@
 .git
 .gitignore
 *.wav
+*.h5
+!static/models/cnn_vote_best_total.h5
 
 # Python pycache:
 __pycache__/
