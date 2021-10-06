@@ -12,7 +12,7 @@
 # below:
 .git
 .gitignore
-.wav
+*.wav
 
 # Python pycache:
 __pycache__/

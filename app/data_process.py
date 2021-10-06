@@ -1,7 +1,6 @@
 # ML, DL용 input 데이터 전처리 과정
 import numpy as np
 import matplotlib.pyplot as plt
-import librosa, librosa.display
 import tensorflow as tf
 import wave
 import math
