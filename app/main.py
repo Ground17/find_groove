@@ -184,7 +184,10 @@ def search():
             title = "%s.0000%d"%(genre[answer[0][1] // 10], answer[0][1] % 10)
             recommend1 = "%s.0000%d"%(genre[answer[1][1] // 10], answer[1][1] % 10)
             recommend2 = "%s.0000%d"%(genre[answer[2][1] // 10], answer[2][1] % 10)
-            recommend3 = "%s.0000%d"%(genre[answer[3][1] // 10], answer[3][1] % 10)
+            if recommend1 != test_lists[index][0].replace('.txt','') and recommend2 != test_lists[index][0].replace('.txt',''):
+                recommend3 = test_lists[index][0].replace('.txt','')
+            else:
+                recommend3 = "%s.0000%d"%(genre[answer[3][1] // 10], answer[3][1] % 10)
             accuracy = answer[0][0] / len(train_X)
         else:
             title = test_lists[index][0].replace('.txt','') # fingerprint 채택
