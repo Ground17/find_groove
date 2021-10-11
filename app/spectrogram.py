@@ -47,7 +47,7 @@ def get_2D_peaks(frequencies, weight):
     for i in range(len(frequencies)):
     #     f_10.append(max(frequencies[i][0:15]))       #max frequency <= 107Hz very low
     #     f_20.append(max(frequencies[i][15:20]))      #107Hz < max frequency <= 214Hz low
-        f_40.append(max(frequencies[i][18:40]))      #193Hz < max frequency <= 428Hz low-mid
+        f_40.append(max(frequencies[i][20:40]))      #214Hz < max frequency <= 428Hz low-mid
         f_80.append(max(frequencies[i][40:80]))      #428Hz < max frequency <= 856Hz mid
         f_160.append(max(frequencies[i][80:160]))    #856Hz < max frequency <= 1712Hz mid-high
         f_320.append(max(frequencies[i][160:320]))   #1712Hz < max frequency <= 3445Hz high
@@ -61,7 +61,7 @@ def get_2D_peaks(frequencies, weight):
         # if f_20[i] > mean_band:
         #     result.append((frequencies[i][18:20].index(f_20[i]) + 15, i * 1024))
         if f_40[i] > mean_band:
-            result.append((frequencies[i][18:40].index(f_40[i]) + 18, i * 1024))        #최대값의 주파수 인덱스와 시간 기록
+            result.append((frequencies[i][20:40].index(f_40[i]) + 18, i * 1024))        #최대값의 주파수 인덱스와 시간 기록
         if f_80[i] > mean_band:
             result.append((frequencies[i][40:80].index(f_80[i]) + 40, i * 1024))
         if f_160[i] > mean_band:
