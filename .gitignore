@@ -2,8 +2,10 @@ data/genres.tar.gz
 data/genres
 .vscode/
 python/venv/
+app/venv/
 venv/
 *.wav
 app/*.wav
 *.h5
+app/static/musics
 !app/static/models/cnn_vote_best_total.h5

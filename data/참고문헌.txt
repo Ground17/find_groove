@@ -1,3 +1,0 @@
-https://bi.snu.ac.kr/~scai/Publications/Theses/ParkSJ_MS02.pdf // 서울대학교 인공지능 음악 검색
-https://sanghyu.tistory.com/45 // mfcc(Mel Frequency Cepstrum Coefficient) 관련 librosa 라이브러리 (파이썬, 한국어)
-https://github.com/worldveil/dejavu // FFT를 이용한 음악 검색 파이썬 모듈

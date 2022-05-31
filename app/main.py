@@ -90,7 +90,7 @@ def search():
     # return None
     #####################################
 
-    # 1. ml model - 유지상
+    # 1. ml model
     genre = [
         "blues",
         "classical",
@@ -136,8 +136,7 @@ def search():
         answer.append((c, i))
     answer.sort(reverse=True)
 
-    ### 이 부분부터 수정해주시면 됩니다 ###
-    # 2. fingerprint - 이수종
+    # 2. fingerprint
     rec_peaks = spectrogram.spectrogram(samples)     #녹음/일부 음원 스펙트로그램 적용
     rec_finger = compare.rec_fingerprints(rec_peaks)    #녹음된 음원 지문을 기록
     index = -1
@@ -216,7 +215,7 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
-    app.run(host='0.0.0.0', port=8080, debug=True) # 왠만하면 바꾸지 말아주세요
+    app.run(host='0.0.0.0', port=8080, debug=True)
 
     # 성능 테스트용 코드
     # path = './static/ai_inputs/test'

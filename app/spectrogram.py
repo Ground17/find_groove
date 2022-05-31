@@ -1,6 +1,5 @@
 import numpy as np
 import wave
-import math
 import os
 import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter
@@ -227,53 +226,13 @@ def spectrogram(file, weight = 1):
     #fre_time = final_frequency*fs/1024
 
     #스펙트로그램 확인하고 싶을 때 활성화
-    fre = []
-    time = []
-    for i, peak in enumerate(peaks):
-        fre.append(peak[0])
-        time.append(peak[1])
+    # fre = []
+    # time = []
+    # for i, peak in enumerate(peaks):
+    #     fre.append(peak[0])
+    #     time.append(peak[1])
 
-    plt.scatter(np.array(time)/fs,fre,marker = 'x',alpha = 0.2)
+    # plt.scatter(np.array(time)/fs,fre,marker = 'x',alpha = 0.2)
     # plt.show()
 
     return peaks
-
-#music_list = glob.glob(path)
-'''
-    fingerprint를 얻는 과정입니다.
-'''
-if __name__ == "__main__": # 로컬 가상 서버에서만 호출합니다.
-    # cwd = os.getcwd()
-    # path = '../data/genres'
-    path = '../data/rec_data'
-    music_list = os.listdir(path)
-    music_list = [item for item in music_list if os.path.isdir(os.path.join(path, item))] # 장르 10개 (['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock'])
-
-    fan_value = 15                                            #특정 인덱스 기준 몇번째까지 범위를 가질것인가
-    for k in music_list:
-        genre_path = path + '/' + k
-        for l in os.listdir(genre_path):
-            peaks = spectrogram(genre_path + "/" + l, weight = 0.6)
-            f = open('../data/rec_fingerprints/'+l.replace('.wav','.txt'), 'w')
-            # f = open('../data/fingerprints/'+l.replace('.wav','.txt'), 'w')    #fingerprints 폴더에 파일 이름 생성
-            for i in range(len(peaks)):
-                for j in range(1, fan_value):
-                    if (i+j) < len(peaks):                                  #인덱스가 범위 내에 있다면
-                        freq1 = peaks[i][0]                                 #주파수1 인덱스
-                        freq2 = peaks[i + j][0]                             #주파수2 인덱스
-                        t1 = peaks[i][1]                                    #시간1 인덱스
-                        t2 = peaks[i + j][1]                                #시간2 인덱스
-                        t_delta = t2 - t1
-
-                        if t_delta <= 1024*20:                              #특정 시간 이내라면
-                            f.write(str(freq1)+','+str(freq2)+','+str(t_delta)+','+str(t1)+'\n') #주파수1, 주파수2, 시간차, 시간1 저장
-
-
-            f.close()
-            print(l)
-    compare.save_tuple()
-    '''df = pd.DataFrame(data)
-
-    df.to_csv('C:/Users/moonm/PycharmProjects/pythonProject/fingerprints/'+k.replace('.wav','.csv'), index = False, header = False)
-    '''
-

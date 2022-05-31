@@ -1,8 +1,3 @@
-import spectrogram
-import os
-import pickle
-import time
-
 # def matching(offset_list):
 #     '''
 #     Match music
@@ -42,7 +37,6 @@ import time
 #     return max_count
 
 def compare(test_list, rec_finger):
-
     '''
     Calculation of the difference of offsets
 
@@ -81,26 +75,6 @@ def compare(test_list, rec_finger):
 
     return max(result.values()) if len(result) > 0 else 0
 
-
-def text2tuple(file):
-    '''
-    Transform the file.txt to tuple
-
-    :param file:        A file.txt
-    :return:            List[[(tuple),offset]]
-
-    텍스트 형식으로 기록된 지문 정보를 숫자계산이 가능하도록 정수 튜플로 바꿉니다.
-    '''
-    test_list = []
-
-    while True:
-        line = file.readline()
-        if not line: break
-        line = line.strip()
-        tmp_line = line.split(',')
-        test_list.append([(int(tmp_line[0]), int(tmp_line[1]), int(tmp_line[2])), int(tmp_line[3])])
-    return test_list
-
 def rec_fingerprints(rec_peaks):
     '''
     Get a fingerprint of recorded music
@@ -132,20 +106,3 @@ def rec_fingerprints(rec_peaks):
                     data.append([(freq1,freq2,t_delta),t1])
                     
     return data
-
-def save_tuple(): # fingerprint 튜플 저장
-    path_data = '../data/rec_fingerprints/'
-    data = os.listdir(path_data)
-    test_lists = []
-    for file_name in data:
-        file = open(path_data + file_name,'r')
-        test_lists.append((file_name, text2tuple(file)))
-
-    # with open('./static/variables/test_lists', 'wb') as f:
-    with open('./static/variables/rec_test_lists', 'wb') as f:
-        pickle.dump(test_lists, f)
-
-def load_tuple(): # fingerprint 튜플 불러오기
-    # with open('./static/variables/test_lists', 'rb') as f:
-    with open('./static/variables/rec_test_lists', 'rb') as f:
-        return pickle.load(f)
