@@ -8,4 +8,5 @@ venv/
 app/*.wav
 *.h5
 app/static/musics
+app/static/recs
 !app/static/models/cnn_vote_best_total.h5

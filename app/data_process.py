@@ -1,11 +1,12 @@
 # ML, DL용 input 데이터 전처리 과정
 import numpy as np
-import matplotlib.pyplot as plt
-import tensorflow as tf
 import wave
 import math
 import os
 from scipy.signal import butter, lfilter
+
+# import matplotlib.pyplot as plt
+# import tensorflow as tf
 
 def downsampling(files, sample=44100):
     '''

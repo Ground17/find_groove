@@ -20,7 +20,6 @@ import time
 from flask import Flask, render_template, request, jsonify, url_for
 import compare
 import spectrogram
-import tensorflow as tf
 import numpy as np
 import data_process
 import os
@@ -28,6 +27,9 @@ import wave
 import pickle
 import data_process
 from scipy.stats import mode
+
+### 모델을 사용하지 않을 경우, 삭제
+# import tensorflow as tf
 
 # model = (tf.keras.models.load_model('./static/models/cnn_vote_best_total.h5'))
 app = Flask(__name__)
@@ -37,27 +39,41 @@ ready = False
 def root():
     # For the sake of example, use static information to inflate the template.
     # This will be replaced with real information in later steps.
-    dummy_times = [datetime.datetime(2021, 10, 8, 23, 59, 59)]
+    return render_template('index.html')
 
-    return render_template('index.html', times=dummy_times)
+@app.route('/set_directory')
+def set_directory():
+    # ongoing...
+    return jsonify({})
 
-@app.route('/make')
+@app.route('/make_fingerprint')
 def make_fingerprint():
     # ongoing...
     return jsonify({})
 
-# @app.route('/search', methods=['POST'])
-# def search():
-#     start = time.time()
-#     # f = request.files['file']
-#     # f.save('./files/' + secure_filename(f.filename))
+@app.route('/check_fingerprint')
+def check_fingerprint():
+    # ongoing...
+    return jsonify({'current': 0, 'total': 0})
 
-#     params = request.get_json()
+@app.route('/load_tuple')
+def load_tuple():
+    # ongoing...
+    return jsonify({'current': 0, 'total': 0})
 
-#     # samples: 11025Hz로 샘플링된 float 형식 4초 분량 녹음 데이터
-#     # 값 범위: (-1, 1)
-#     # 길이: 44100 (11025 * 4)
-#     samples = params['samples']
+@app.route('/check_model')
+def check_model():
+    # ongoing...
+    return jsonify({'current': 0, 'total': 0})
+
+@app.route('/search', methods=['GET', 'POST'])
+def search():
+    start = time.time()
+    # f = request.files['file']
+    # f.save('./files/' + secure_filename(f.filename))
+
+    params = request.get_json()
+    samples = params['samples']
 
 # # =================================================================
 #     #임시 wav파일 저장 - 수종
@@ -210,9 +226,6 @@ def make_fingerprint():
 #         'accuracy': accuracy,
 #         'time': time.time() - start,
 #         })
-
-def run_flask(port=8080, local=True):
-    app.run(host='127.0.0.1' if local else '0.0.0.0', port=port, debug=True)
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App

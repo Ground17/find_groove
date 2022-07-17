@@ -7,13 +7,14 @@ import webbrowser
 from flask import Flask, render_template, request, jsonify
 import compare
 import spectrogram
-import tensorflow as tf
 import os
 import numpy as np
 import pickle
 from tkinter import LEFT, W, Button, Entry, Label, IntVar, Radiobutton
 import tkinter.ttk
 from tkinter.filedialog import askdirectory
+
+# import tensorflow as tf
     
 # app = Flask(__name__)
 
@@ -34,11 +35,11 @@ port = 8080
 
 def draw_window_1():
     description1 = Label(window, text="1. Choose a folder(directory) that contains *.wav file(s).", justify=LEFT, anchor='w')
-    directory_btn = Button(window, text='Select', command=directory)
+    directory_btn = Button(window, text='Select', command=set_directory)
     description1.grid(row=0, column=0, columnspan=2, sticky = W)
     directory_btn.grid(row=0, column=2)
 
-def directory():
+def set_directory():
     global filepath
     filepath = askdirectory(title="Dialog box", initialdir=os.getcwd())
     label_path = Label(window, text=filepath)
@@ -109,14 +110,14 @@ def draw_window_3():
 def check_model(): # tensorflow model을 사용할 것인지 체크
     global filepath, is_model, model
 
-    try:
-        if os.path.exists(filepath + '/cnn_vote_best_total.h5'):
-            model = tf.keras.models.load_model(filepath + '/cnn_vote_best_total.h5')
-            is_model = True
-        else:
-            is_model = False
-    except:
-        is_model = False
+    # try:
+    #     if os.path.exists(filepath + '/cnn_vote_best_total.h5'):
+    #         model = tf.keras.models.load_model(filepath + '/cnn_vote_best_total.h5')
+    #         is_model = True
+    #     else:
+    #         is_model = False
+    # except:
+    #     is_model = False
 
     label_model = Label(window, text="We can use tensorflow model!" if is_model else "We can't use tensorflow model.")
     label_model.grid(row=5, column=0, columnspan=3)

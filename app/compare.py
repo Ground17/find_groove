@@ -91,7 +91,7 @@ def rec_fingerprints(rec_peaks):
 
     '''
     fan_value = 15                                              #지문에서 탐색할 주파수 인덱스 범위
-    data = []                                    
+    data = {}                                   
     for i in range(len(rec_peaks)):                             #스펙트로그램 주파수 영역 길이만큼
         for j in range(1, fan_value):                           #설정한 인덱스 범위만큼
             if (i+j) < len(rec_peaks):                          #녹음된 음원의 길이를 넘지 않게

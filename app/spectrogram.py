@@ -1,42 +1,19 @@
 import numpy as np
 import wave
 import os
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter
 import compare
 
-global fs
-fs = 44100/4
-
-# def get_2D_peaks(array,array_index,avg,time):
-#     '''
-
-#     :param array:       frequency magnitude array
-#     :param array_index: frequency magnitude index array
-#     :param avg:         frequency average under 512Hz of a full length of song
-#     :param time:        time information of frequency
-#     :return:            list of tuple (frequency >= avg*weight , time)
-
-#     주파수 영역에서 평균값 * 보정값보다 큰 주파수와 그 때의 시간 정보를 얻어옵니다.
-#     보정값은 설계자가 임의로 설정 가능
-#     '''
-#     Nonzero_index=[]                                        #평균값 * 보정값보다 큰 주파수 인덱스들의 모임
-
-#     for i in range(len(array)):
-#         if array[i] >= avg:
-#             Nonzero_index.append((array_index[i],time[i]))  #[0]: 주파수 [1]: 시간
-#     return Nonzero_index
-
 def get_2D_peaks(frequencies, weight):
     '''
-
     :param frequencies:   audio frequency list
     :return:              array of over mean of band frequency
 
     각 주파수 밴드에서 가장 큰 주파수 값을 각가 얻어옵니다.
     '''
-    # f_10 = []
-    # f_20 = []
+    f_10 = []
+    f_20 = []
     f_40 = []
     f_80 = []
     f_160 = []
@@ -44,23 +21,23 @@ def get_2D_peaks(frequencies, weight):
     f_511 = []
 
     for i in range(len(frequencies)):
-    #     f_10.append(max(frequencies[i][0:15]))       #max frequency <= 107Hz very low
-    #     f_20.append(max(frequencies[i][15:20]))      #107Hz < max frequency <= 214Hz low
-        f_40.append(max(frequencies[i][20:40]))      #214Hz < max frequency <= 428Hz low-mid
-        f_80.append(max(frequencies[i][40:80]))      #428Hz < max frequency <= 856Hz mid
-        f_160.append(max(frequencies[i][80:160]))    #856Hz < max frequency <= 1712Hz mid-high
-        f_320.append(max(frequencies[i][160:320]))   #1712Hz < max frequency <= 3445Hz high
-        f_511.append(max(frequencies[i][320:511]))   #3445Hz < max frequency <= 5491Hz very high
+        f_10.append(max(frequencies[i][0:15]))       #max frequency <= 107Hz very low
+        f_20.append(max(frequencies[i][15:20]))      #107Hz < max frequency <= 214Hz low
+        f_40.append(max(frequencies[i][20:40]))      # 214Hz < max frequency <= 428Hz low-mid
+        f_80.append(max(frequencies[i][40:80]))      # 428Hz < max frequency <= 856Hz mid
+        f_160.append(max(frequencies[i][80:160]))    # 856Hz < max frequency <= 1712Hz mid-high
+        f_320.append(max(frequencies[i][160:320]))   # 1712Hz < max frequency <= 3445Hz high
+        f_511.append(max(frequencies[i][320:511]))   # 3445Hz < max frequency <= 5491Hz very high
 
-    mean_band = (max(f_40)+max(f_80)+max(f_160)+max(f_320)+max(f_511))/5 * weight  #모든 시간에서 각 밴드의 최대값의 평균
+    mean_band = (max(f_40) + max(f_80) + max(f_160) + max(f_320) + max(f_511)) / 5 * weight  # 모든 시간에서 각 밴드의 최대값의 평균
     result = []
     for i in range(len(frequencies)):
-        # if f_10[i] > mean_band:
-        #     result.append((frequencies[i][0:10].index(f_10[i]), i * 1024))
-        # if f_20[i] > mean_band:
-        #     result.append((frequencies[i][18:20].index(f_20[i]) + 15, i * 1024))
+        if f_10[i] > mean_band:
+            result.append((frequencies[i][0:10].index(f_10[i]), i * 1024))
+        if f_20[i] > mean_band:
+            result.append((frequencies[i][18:20].index(f_20[i]) + 15, i * 1024))
         if f_40[i] > mean_band:
-            result.append((frequencies[i][20:40].index(f_40[i]) + 18, i * 1024))        #최대값의 주파수 인덱스와 시간 기록
+            result.append((frequencies[i][20:40].index(f_40[i]) + 18, i * 1024))        # 최대값의 주파수 인덱스와 시간 기록
         if f_80[i] > mean_band:
             result.append((frequencies[i][40:80].index(f_80[i]) + 40, i * 1024))
         if f_160[i] > mean_band:
@@ -71,7 +48,6 @@ def get_2D_peaks(frequencies, weight):
             result.append((frequencies[i][320:511].index(f_511[i]) + 320, i * 1024))
 
     return result
-    #return max([f_10,f_20,f_40,f_80,f_160,f_511])
 
 def downsampling(files, sample=44100):
     '''
@@ -178,9 +154,8 @@ def spectrogram(file, weight = 1):
     -> 잘린 구간을 FFT합니다. -> 노래 전체 구간에서 저주파수 영역의 평균을 구합니다.
     -> 이 평균값보다 큰 주파수 영역대를 구합니다.
     '''
-    global fs
 
-    audio_normalised = audioread(file) if isinstance(file, str) else file # 녹음파일의 경우 바로 쓸 수 있음
+    audio_normalised = audioread(file) if isinstance(file, str) else file
 
     # summary = 0
 
@@ -194,8 +169,7 @@ def spectrogram(file, weight = 1):
     # print("average:", summary / len(audio_normalised))
 
     length = len(audio_normalised)
-    window = np.hamming(1024)                                   #탭 수 1024인 해밍윈도우 생성
-    # window_512 = np.hamming(512)
+    window = np.hamming(1024) # 탭 수 1024인 해밍윈도우 생성
 
     frequencies = []
     # max_value = []
@@ -204,35 +178,10 @@ def spectrogram(file, weight = 1):
     for i in range(0, length - 1024, 1024):
         audio_cut = []
         for j in range(1024):
-            audio_cut.append(window[j]*audio_normalised[i+j])   #해밍윈도우로 자르기   
-        frequency = FFT(audio_cut)                              #잘린 부분 FFT 변환
+            audio_cut.append(window[j] * audio_normalised[i+j]) # 해밍윈도우로 자르기   
+        frequency = FFT(audio_cut) # 잘린 부분 FFT 변환
         frequencies.append(frequency)
 
     peaks = get_2D_peaks(frequencies, weight)
-    # for i in range(len(frequencies)):
-    #     # for j in range(512):
-    #     #     frequencies[i][j] -= summary[j]
-    #     # frequencies[i][0] = frequencies[i][1] = 0
-    #     band_frequency.append(band_fre(frequencies[i]))                #6개 밴드 주파수 영역에서 가장 큰 주파수 크기 등록
-    #     max_frequency = max(frequencies[i])                          #잘린 구간에서 모든 주파수 영역에서의 가장 큰 주파수 크기 가져오기
-    #     max_value.append(max_frequency)                         #가장 큰 주파수 크기 등록
-    #     max_index.append(frequencies[i].index(max_frequency))        #가장 큰 주파수 크기의 인덱스(주파수) 등록
-
-    # Low_avg = sum(band_frequency)/len(band_frequency)             #모든 시간영역에서 가장 큰 밴드 주파수 크기의 평균값
-    # time = np.arange(0, length - 1024, 1024)                     #시간 array
-    #time = np.arange(0, length - 1024, 1024) / fs / 2
-
-    # peaks = get_2D_peaks(max_value, max_index, 1.2, time)   #평균보다 큰 주파수 크기와 그 때의 주파수, 시간을 구함
-    #fre_time = final_frequency*fs/1024
-
-    #스펙트로그램 확인하고 싶을 때 활성화
-    # fre = []
-    # time = []
-    # for i, peak in enumerate(peaks):
-    #     fre.append(peak[0])
-    #     time.append(peak[1])
-
-    # plt.scatter(np.array(time)/fs,fre,marker = 'x',alpha = 0.2)
-    # plt.show()
 
     return peaks

@@ -1,9 +1,9 @@
 # Find Groove (Editing since May 31, 2022)
 It's a service to find songs using your own songs and the microphone of your devices. The goal is to operate a local flask server on Windows or Mac to work on any device with a built-in microphone that accesses this server.
 
-## repo structure (Editing since May 31, 2022)
-app/ 
-deprecated/
+## repo structure
+- app/ 
+- deprecated/
 
 ## To do list
  - [ ] Make exe, pkg file

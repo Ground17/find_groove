@@ -1,0 +1,3 @@
+([('main',
+   '/Volumes/Samsung_T5/web_app/find_groove/app/dist/main',
+   'EXECUTABLE')],)
