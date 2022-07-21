@@ -10,7 +10,7 @@ def get_2D_peaks(frequencies, weight):
     :param frequencies:   audio frequency list
     :return:              array of over mean of band frequency
 
-    각 주파수 밴드에서 가장 큰 주파수 값을 각가 얻어옵니다.
+    각 주파수 밴드에서 가장 큰 주파수 값을 각각 얻어옵니다.
     '''
     f_10 = []
     f_20 = []
@@ -37,7 +37,7 @@ def get_2D_peaks(frequencies, weight):
         if f_20[i] > mean_band:
             result.append((frequencies[i][18:20].index(f_20[i]) + 15, i * 1024))
         if f_40[i] > mean_band:
-            result.append((frequencies[i][20:40].index(f_40[i]) + 18, i * 1024))        # 최대값의 주파수 인덱스와 시간 기록
+            result.append((frequencies[i][20:40].index(f_40[i]) + 20, i * 1024))        # 최대값의 주파수 인덱스와 시간 기록
         if f_80[i] > mean_band:
             result.append((frequencies[i][40:80].index(f_80[i]) + 40, i * 1024))
         if f_160[i] > mean_band:
@@ -53,10 +53,10 @@ def downsampling(files, sample=44100):
     '''
 
     :param file:    audio file
-    :sample: sample rate (무조건 44100의 약수여야 함)
+    :sample:        sample rate
     :return:        downsampled file, sampling rates = 4:1
 
-    44100Hz는 데이터가 너무 커서 0.25배로 다운샘플링
+    어떤 주파수의 소리이든, 11025Hz로 통일
     '''
     N = len(files)
     skip = sample // 11025
@@ -107,7 +107,6 @@ def audioread(file):
     :return:        downsampled wave file
 
     웨이브 형식의 음악파일을 불러옵니다.
-    이것은 큰 저장공간이 필요하므로 mp3로 바꿔야합니다.
     '''
 
     # from pydub import AudioSegment
