@@ -6,6 +6,7 @@ import webbrowser
 
 from flask import Flask, render_template, request, jsonify
 import compare
+# import main
 import spectrogram
 import os
 import numpy as np
@@ -15,17 +16,6 @@ import tkinter.ttk
 from tkinter.filedialog import askdirectory
 
 # import tensorflow as tf
-    
-# app = Flask(__name__)
-
-# @app.route('/')
-# def main():
-#     dummy_times = [datetime.datetime(2022, 6, 1, 23, 59, 59)]
-#     return render_template('index.html', times=dummy_times)
-
-# @app.route('/search', methods=['POST'])
-# def search():
-#     return jsonify("")
 
 window=tkinter.Tk()
 window.title("Find Groove")
@@ -85,7 +75,7 @@ def make_fingerprint():
 
                         finger_dict[(freq1, freq2, t_delta)].add((name, t1)) # key: (freq1, freq2, t_delta), value: (filename, t1)
 
-        # progress_label.config(text=str(k + 1) + "/" + str(len(music_list)))
+        progress_label.config(text=str(k + 1) + "/" + str(len(music_list)))
 
     # print(finger_dict)
 
@@ -159,8 +149,9 @@ def run_process():
     except:
         port = 8080
 
-    # draw_window_1()
-    # window.mainloop()
+def start():
+    draw_window_1()
+    window.mainloop()
 
 # def stop_local():
 #     func = request.environ.get('werkzeug.server.shutdown')

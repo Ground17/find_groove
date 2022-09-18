@@ -20,6 +20,7 @@ import time
 from flask import Flask, render_template, request, jsonify, url_for
 import compare
 import spectrogram
+# import functions
 import numpy as np
 import data_process
 import os
@@ -27,6 +28,8 @@ import wave
 import pickle
 import data_process
 from scipy.stats import mode
+
+from multiprocessing import Process, freeze_support
 
 ### 모델을 사용하지 않을 경우, 삭제
 # import tensorflow as tf
@@ -41,30 +44,8 @@ def root():
     # This will be replaced with real information in later steps.
     return render_template('index.html')
 
-@app.route('/set_directory')
-def set_directory():
-    # ongoing...
-    return jsonify({})
-
-@app.route('/make_fingerprint')
-def make_fingerprint():
-    # ongoing...
-    return jsonify({})
-
-@app.route('/check_fingerprint')
-def check_fingerprint():
-    # ongoing...
-    return jsonify({'current': 0, 'total': 0})
-
-@app.route('/load_tuple')
-def load_tuple():
-    # ongoing...
-    return jsonify({'current': 0, 'total': 0})
-
-@app.route('/check_model')
-def check_model():
-    # ongoing...
-    return jsonify({'current': 0, 'total': 0})
+def get_ip_address():
+    return request.remote_addr
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -227,6 +208,12 @@ def search():
 #         'time': time.time() - start,
 #         })
 
+def flask_main():
+    app.run(host='0.0.0.0', port=8080, debug=True) #запуск лупа
+
+# def tk_main():
+#     functions.start()
+
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
     # Engine, a webserver process such as Gunicorn will serve the app. This
@@ -235,8 +222,12 @@ if __name__ == '__main__':
     # the "static" directory. See:
     # http://flask.pocoo.org/docs/1.0/quickstart/#static-files. Once deployed,
     # App Engine itself will serve those files as configured in app.yaml.
+    
+    freeze_support()
+    Process(target=tk_main).start()
 
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    flask_main()
+    # app.run(host='0.0.0.0', port=8080, debug=True)
 
     # 성능 테스트용 코드
     # path = './static/ai_inputs/test'
